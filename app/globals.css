@@ -171,52 +171,118 @@ button { cursor: pointer; }
   align-items: center;
   gap: 0;
   pointer-events: auto;
+  /* staggered entrance */
+  opacity: 0;
+  animation: label-appear 0.5s ease forwards;
 }
+@keyframes label-appear {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+/* right-side labels slide from right */
+.label-item.right-label {
+  animation: label-appear-right 0.5s ease forwards;
+}
+@keyframes label-appear-right {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 .label-text {
   font-size: 10px;
   font-weight: 600;
   color: #e8f2ff;
-  background: rgba(5,18,36,0.72);
+  background: rgba(5,18,36,0.80);
   padding: 3px 8px;
   border-radius: 3px;
   white-space: nowrap;
   backdrop-filter: blur(4px);
   letter-spacing: 0.15px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.label-text .lbl-val {
+  color: #7dd3fc;
+  font-size: 9px;
+  margin-left: 4px;
 }
 .label-dash {
   display: block;
   width: 24px;
   height: 1px;
-  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.6) 0 4px, transparent 4px 8px);
+  background: linear-gradient(90deg, rgba(255,255,255,0.7) 50%, transparent 50%);
+  background-size: 8px 1px;
   flex-shrink: 0;
 }
+.simulation-canvas-v2.running .label-dash {
+  animation: flow-dash-anim 0.6s infinite linear reverse;
+}
+.simulation-canvas-v2.running .l-casing .label-dash,
+.simulation-canvas-v2.running .l-tubing .label-dash,
+.simulation-canvas-v2.running .l-payzone .label-dash,
+.simulation-canvas-v2.running .l-packervalve .label-dash,
+.simulation-canvas-v2.running .l-perforations .label-dash {
+  animation-direction: normal;
+}
+@keyframes flow-dash-anim {
+  from { background-position: 0 0; }
+  to { background-position: 8px 0; }
+}
+
 .label-dot {
   display: block;
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.85);
   flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+.simulation-canvas-v2.running .label-dot {
+  animation: pulse-label-dot 1.5s infinite;
+}
+@keyframes pulse-label-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  70%  { box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
 }
 
-/* Specific label positions */
-.l-wellhead { top: 12%; left: 4%; }
-.l-wellhead .label-dash { width: 80px; transform: rotate(10deg); transform-origin: left; }
+/* ── Label positions — LEFT side (fade from left) ── */
+.l-wellhead       { top: 9%;   left: 2%; animation-delay: 0.1s; }
+.l-wellhead .label-dash { width: 70px; transform: rotate(10deg); transform-origin: left; }
 
-.l-injection { top: 38%; left: 8%; }
-.l-injection .label-dash { width: 55px; transform: rotate(14deg); transform-origin: left; }
+.l-injection      { top: 33%;  left: 5%; animation-delay: 0.5s; }
+.l-injection .label-dash { width: 60px; transform: rotate(14deg); transform-origin: left; }
 
-.l-casing { top: 18%; right: 18%; flex-direction: row-reverse; }
+.l-jodhpur        { bottom: 27%; left: 6%; animation-delay: 0.9s; }
+.l-jodhpur .label-dash { width: 55px; transform: rotate(-5deg); transform-origin: left; }
+
+.l-caprock        { bottom: 38%; left: 5%; animation-delay: 1.1s; }
+.l-caprock .label-dash { width: 50px; transform: rotate(-3deg); transform-origin: left; }
+
+.l-steamgen       { top: 4%;   left: 2%; animation-delay: 0.3s; }
+.l-steamgen .label-dash { width: 55px; transform: rotate(6deg); transform-origin: left; }
+
+.l-flowline       { top: 22%;  left: 3%; animation-delay: 0.7s; }
+.l-flowline .label-dash { width: 50px; transform: rotate(8deg); transform-origin: left; }
+
+/* ── Label positions — RIGHT side (fade from right) ── */
+.l-casing         { top: 14%;  right: 14%; flex-direction: row-reverse; animation-delay: 0.2s; }
 .l-casing .label-dash { width: 45px; transform: rotate(5deg); transform-origin: right; }
 
-.l-tubing { top: 32%; right: 16%; flex-direction: row-reverse; }
+.l-tubing         { top: 27%;  right: 12%; flex-direction: row-reverse; animation-delay: 0.4s; }
 .l-tubing .label-dash { width: 55px; transform: rotate(-8deg); transform-origin: right; }
 
-.l-jodhpur { bottom: 25%; left: 10%; }
-.l-jodhpur .label-dash { width: 50px; transform: rotate(-5deg); transform-origin: left; }
+.l-payzone        { bottom: 12%; right: 12%; flex-direction: row-reverse; animation-delay: 0.6s; }
+.l-payzone .label-dash { width: 50px; transform: rotate(4deg); transform-origin: right; }
 
-.l-payzone { bottom: 15%; right: 15%; flex-direction: row-reverse; }
-.l-payzone .label-dash { width: 45px; transform: rotate(4deg); transform-origin: right; }
+.l-packervalve    { top: 45%;  right: 10%; flex-direction: row-reverse; animation-delay: 0.8s; }
+.l-packervalve .label-dash { width: 50px; transform: rotate(-6deg); transform-origin: right; }
+
+.l-perforations   { bottom: 26%; right: 8%; flex-direction: row-reverse; animation-delay: 1.0s; }
+.l-perforations .label-dash { width: 55px; transform: rotate(5deg); transform-origin: right; }
+
+.l-depthmarker    { bottom: 5%; right: 6%; flex-direction: row-reverse; animation-delay: 1.2s; }
+.l-depthmarker .label-dash { width: 40px; transform: rotate(0deg); transform-origin: right; }
 
 /* ── Temperature legend — right side ── */
 .sim-legend {
@@ -287,6 +353,14 @@ button { cursor: pointer; }
   display: grid; place-items: center;
   cursor: pointer;
   transition: background .18s;
+}
+.simulation-canvas-v2:not(.running) .play-btn {
+  animation: pulse-play 2.5s infinite;
+}
+@keyframes pulse-play {
+  0% { box-shadow: 0 0 0 0 rgba(58, 123, 200, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(58, 123, 200, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(58, 123, 200, 0); }
 }
 .play-btn:hover { background: #1a6ddc; }
 .play-btn svg { width: 18px; height: 18px; }
@@ -516,17 +590,17 @@ button { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(248, 250, 252, 0.4);
+  background-color: transparent;
   pointer-events: none;
 }
 
 .sim-special-view.temp-map-view {
-  background-color: rgba(27, 48, 77, 0.6);
+  background-color: transparent;
 }
 
 .sim-info-overlay {
   position: absolute;
-  top: 16px; left: 16px;
+  top: 54px; left: 16px;
   background: rgba(255, 255, 255, 0.95);
   padding: 12px 16px;
   border-radius: 8px;
@@ -574,8 +648,10 @@ button { cursor: pointer; }
   z-index: 5;
 }
 .res-wellbore.hot {
-  background: #ff3300;
-  box-shadow: 0 0 0 2px #ff3300, 0 0 10px #ff3300;
+  background: #fff;
+  border: 4px solid #ff3300;
+  box-shadow: 0 0 15px #ff3300;
+  width: 24px; height: 24px;
 }
 
 .res-fluid-front, .heat-zone, .res-oil-flow {
@@ -592,7 +668,7 @@ button { cursor: pointer; }
 }
 
 .profiles-view {
-  background-color: rgba(238, 245, 252, 0.4);
+  background-color: transparent;
 }
 
 .profile-container {
@@ -648,3 +724,379 @@ button { cursor: pointer; }
   font-weight: 700;
   color: #1b304d;
 }
+
+/* Animations for Simulation Features */
+.simulation-canvas-v2.running .res-grid {
+  animation: grid-move 4s infinite linear;
+}
+@keyframes grid-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.res-fluid-front::after, .res-oil-flow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.simulation-canvas-v2.running .res-fluid-front::after {
+  animation: res-ripple 1.5s infinite linear;
+}
+.simulation-canvas-v2.running .res-oil-flow::after {
+  animation: res-oil-ripple 1.5s infinite linear;
+}
+@keyframes res-ripple {
+  0% { box-shadow: 0 0 0 0 rgba(94, 162, 243, 0.6); }
+  100% { box-shadow: 0 0 0 30px rgba(94, 162, 243, 0); }
+}
+@keyframes res-oil-ripple {
+  0% { box-shadow: 0 0 0 30px rgba(24, 133, 84, 0); }
+  50% { box-shadow: 0 0 0 0 rgba(24, 133, 84, 0.6); }
+  100% { box-shadow: 0 0 0 0 rgba(24, 133, 84, 0); }
+}
+
+.simulation-canvas-v2.running .heat-zone {
+  animation: pulse-brightness 2s infinite ease-in-out;
+}
+@keyframes pulse-brightness {
+  0%, 100% { filter: brightness(1) blur(0px); }
+  50% { filter: brightness(1.2) blur(2px); }
+}
+
+.profile-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 100% 200%;
+  opacity: 0;
+}
+.simulation-canvas-v2.running .profile-fill::after {
+  animation: shimmer-vertical 1.5s infinite linear;
+  opacity: 1;
+}
+@keyframes shimmer-vertical {
+  0% { background-position: 0 -100%; }
+  100% { background-position: 0 200%; }
+}
+
+.sim-scanner {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 8px;
+  background: rgba(94, 162, 243, 0.3);
+  box-shadow: 0 0 15px 5px rgba(94, 162, 243, 0.15);
+  animation: scan-line 3.5s infinite linear;
+  pointer-events: none;
+  z-index: 5;
+}
+@keyframes scan-line {
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+}
+
+.temp-layers {
+  position: absolute;
+  top: 36.5%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+.temp-layer.transparent-hover {
+  position: relative;
+  cursor: crosshair;
+}
+.temp-layer.transparent-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.temp-layer.transparent-hover:hover::before {
+  opacity: 1;
+}
+.layer-info {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 20, 36, 0.9);
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.temp-layer:hover .layer-info {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+.layer-info span {
+  color: #a0bcd5;
+}
+.layer-info strong {
+  font-size: 13px;
+  color: #fff;
+}
+.heat-zone {
+  z-index: 2;
+}
+
+/* =============================================
+   3D WELL VIEW — animated overlay
+   ============================================= */
+.well-anim-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  overflow: hidden;
+}
+
+/* Steam particles rising from wellhead */
+.steam-particle {
+  position: absolute;
+  bottom: 54%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,230,255,0.9) 0%, rgba(200,230,255,0) 100%);
+  animation: steam-rise linear infinite;
+  filter: blur(2px);
+}
+@keyframes steam-rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0.8; }
+  60%  { opacity: 0.4; }
+  100% { transform: translateY(-80px) scale(2.5); opacity: 0; }
+}
+
+/* Pressure pulse rings around wellhead */
+.pressure-ring {
+  position: absolute;
+  left: 46%;
+  top: 46%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(94,162,243,0.8);
+  transform: translate(-50%,-50%);
+  animation: pressure-pulse 2.1s ease-out infinite;
+}
+@keyframes pressure-pulse {
+  0%   { transform: translate(-50%,-50%) scale(1);  opacity: 0.9; }
+  100% { transform: translate(-50%,-50%) scale(7);  opacity: 0;   }
+}
+
+/* Flow column & dashes */
+.flow-column {
+  position: absolute;
+  top: 36%;
+  bottom: 40%;
+  width: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+.flow-dash {
+  width: 3px;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(255,180,60,0.85);
+  animation: flow-down 1.4s linear infinite;
+}
+@keyframes flow-down {
+  0%   { opacity: 0; transform: translateY(-12px); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(40px); }
+}
+
+/* Live sensor pulse dot (top-right of canvas) */
+.live-pulse-dot {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4cde8a;
+  animation: live-blink 1.2s ease-in-out infinite;
+  box-shadow: 0 0 8px #4cde8a;
+}
+@keyframes live-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* =============================================
+   RESERVOIR VIEW — animated overlay
+   ============================================= */
+.res-anim-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+/* Fluid-front ellipses */
+.res-ring {
+  position: absolute;
+  left: 49.5%;
+  top: 67%;
+  width: 280px;
+  height: 120px;
+  border-radius: 50%;
+  transform-origin: center center;
+  transition: transform 0.8s ease, opacity 0.8s ease, background 0.8s ease;
+}
+
+/* Expanding pulse rings */
+.res-pulse-ring {
+  position: absolute;
+  left: 49.5%;
+  top: 67%;
+  width: 60px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(80,160,255,0.7);
+  transform: translate(-50%, -50%);
+  animation: res-expand 3s ease-out infinite;
+}
+@keyframes res-expand {
+  0%   { transform: translate(-50%,-50%) scale(1);   opacity: 0.9; }
+  100% { transform: translate(-50%,-50%) scale(6);   opacity: 0;   }
+}
+
+/* Glowing wellbore dot */
+.res-wellbore-dot {
+  position: absolute;
+  left: 49.5%;
+  top: 67%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: background 1s, box-shadow 1s;
+  animation: res-dot-pulse 1.6s ease-in-out infinite;
+  z-index: 5;
+}
+@keyframes res-dot-pulse {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); }
+  50%       { transform: translate(-50%,-50%) scale(1.5); }
+}
+
+/* Oil/fluid outflow particles */
+.res-particle {
+  position: absolute;
+  left: 49.5%;
+  top: 67%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,120,30,0.85);
+  transform-origin: center center;
+  animation: particle-outflow 2.2s ease-out infinite;
+}
+@keyframes particle-outflow {
+  0%   { transform: rotate(var(--r,0deg)) translateX(0)   scale(1);   opacity: 0.9; }
+  100% { transform: rotate(var(--r,0deg)) translateX(130px) scale(0.3); opacity: 0;   }
+}
+
+/* Steam injection streams (vertical, downward) */
+.inject-stream {
+  position: absolute;
+  left: 49.5%;
+  top: 30%;
+  width: 4px;
+  height: 30px;
+  background: linear-gradient(to bottom, rgba(160,210,255,0.9), transparent);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  animation: inject-down 1.6s linear infinite;
+  filter: blur(1px);
+}
+@keyframes inject-down {
+  0%   { transform: translateX(-50%) translateY(0);   opacity: 0.9; }
+  100% { transform: translateX(-50%) translateY(80px); opacity: 0;   }
+}
+
+/* =============================================
+   TEMPERATURE MAP — animated overlay
+   ============================================= */
+.temp-anim-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+/* Heat shimmer full-canvas wave */
+.heat-shimmer {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 12px,
+    rgba(255,80,0,0.04) 12px,
+    rgba(255,80,0,0.04) 13px
+  );
+  animation: shimmer-wave 3s linear infinite;
+}
+@keyframes shimmer-wave {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-26px); }
+}
+
+/* Thermal expansion rings around wellbore */
+.thermal-ring {
+  position: absolute;
+  left: 50%;
+  top: 75%;
+  width: 200px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,60,0,0.7);
+  transform-origin: center center;
+  transition: transform 0.8s ease, opacity 0.6s ease;
+  animation: thermal-pulse 2.8s ease-in-out infinite;
+}
+@keyframes thermal-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 0.15; }
+}
+
+/* Rising heat sparks */
+.heat-spark {
+  position: absolute;
+  bottom: 22%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  animation: spark-rise 2s ease-out infinite;
+}
+@keyframes spark-rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0.9; }
+  70%  { opacity: 0.5; }
+  100% { transform: translateY(-90px) scale(0.2); opacity: 0; }
+}
+

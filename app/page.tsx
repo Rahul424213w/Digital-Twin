@@ -169,59 +169,137 @@ function SimulationCanvas({ phase, running, onToggle, well, profile, day, setDay
       <button className="icon-btn" title="Fullscreen"><Maximize2 size={16} /></button>
     </div>
 
-    {/* Background image - full fit (Always visible) */}
+    {/* Background image */}
     <div className="sim-img-wrap">
-      <img src="/well-render.jpg" alt="3D Well Cross-Section View" className="sim-bg" />
-      {/* Overlay gradient bottom for footer readability */}
+      <img
+        src={activeTab === 'Temperature Map' ? '/heat-map.jpg' : activeTab === 'Reservoir View' ? '/reservoir-view.jpg' : '/well-render.jpg'}
+        alt="3D Well Cross-Section View"
+        className="sim-bg"
+      />
       <div className="sim-img-gradient" />
+      {/* 3D Well View animations */}
+      {running && activeTab === '3D Well View' && <div className="sim-scanner" />}
+      {running && activeTab === '3D Well View' && (
+        <div className="well-anim-layer">
+          {/* Steam particles rising from wellhead */}
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="steam-particle" style={{ left: `${46 + (i % 3 - 1) * 2}%`, animationDelay: `${i * 0.4}s`, animationDuration: `${2.2 + i * 0.3}s` }} />
+          ))}
+          {/* Pressure pulse rings at wellbore */}
+          <div className="pressure-ring" style={{ animationDelay: '0s' }} />
+          <div className="pressure-ring" style={{ animationDelay: '0.7s' }} />
+          <div className="pressure-ring" style={{ animationDelay: '1.4s' }} />
+          {/* Flow indicator dashes down the casing */}
+          <div className="flow-column" style={{ left: '46%' }}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flow-dash" style={{ animationDelay: `${i * 0.25}s` }} />
+            ))}
+          </div>
+          {/* Live data pulse dot */}
+          <div className="live-pulse-dot" />
+        </div>
+      )}
     </div>
 
-    {/* Absolute positioned labels matching reference image (Always visible) */}
-    <div className="sim-labels">
-      <div className="label-item l-wellhead"><span className="label-text">Wellhead</span><span className="label-dash"></span><span className="label-dot"></span></div>
-      <div className="label-item l-injection"><span className="label-text">Injection Line</span><span className="label-dash"></span><span className="label-dot"></span></div>
-      <div className="label-item l-casing"><span className="label-text">Casing</span><span className="label-dash"></span><span className="label-dot"></span></div>
-      <div className="label-item l-tubing"><span className="label-text">Production Tubing</span><span className="label-dash"></span><span className="label-dot"></span></div>
-      <div className="label-item l-jodhpur"><span className="label-text">Jodhpur Sandstone</span><span className="label-dash"></span><span className="label-dot"></span></div>
-      <div className="label-item l-payzone"><span className="label-text">Pay Zone</span><span className="label-dash"></span><span className="label-dot"></span></div>
-    </div>
+    {/* Absolute positioned labels matching reference image */}
+    {activeTab === '3D Well View' && (
+      <div className="sim-labels">
+        <div className="label-item l-wellhead"><span className="label-text">Wellhead</span><span className="label-dash"></span><span className="label-dot"></span></div>
+        <div className="label-item l-injection"><span className="label-text">Injection Line</span><span className="label-dash"></span><span className="label-dot"></span></div>
+        <div className="label-item l-casing"><span className="label-text">Casing</span><span className="label-dash"></span><span className="label-dot"></span></div>
+        <div className="label-item l-tubing"><span className="label-text">Production Tubing</span><span className="label-dash"></span><span className="label-dot"></span></div>
+        <div className="label-item l-jodhpur"><span className="label-text">Jodhpur Sandstone</span><span className="label-dash"></span><span className="label-dot"></span></div>
+        <div className="label-item l-payzone"><span className="label-text">Pay Zone</span><span className="label-dash"></span><span className="label-dot"></span></div>
+      </div>
+    )}
 
     {activeTab === 'Reservoir View' && (
       <div className="sim-special-view reservoir-view">
-        <div className="res-grid"></div>
-        <div className="res-wellbore"></div>
-        <div className="res-fluid-front" style={{ 
-          transform: `scale(${1 + day / 6})`, 
-          opacity: currentPhase === 'Injection' ? 0.7 : (currentPhase === 'Soak' ? 0.5 : 0.2),
-          background: currentPhase === 'Injection' ? 'radial-gradient(circle, rgba(94, 162, 243, 0.8) 0%, rgba(94, 162, 243, 0.2) 70%, transparent 100%)' : 'radial-gradient(circle, rgba(51, 72, 99, 0.6) 0%, rgba(51, 72, 99, 0) 70%, transparent 100%)'
-        }}></div>
-        <div className="res-oil-flow" style={{ 
-          opacity: currentPhase === 'Production' ? (day - 18) / 12 : 0,
-          transform: `scale(${1 + (day > 18 ? (30 - day) / 6 : 0)})`
-        }}></div>
-        <div className="sim-info-overlay">
-          <h3>Fluid Saturation & Flow</h3>
-          <p>Phase: <strong>{currentPhase}</strong></p>
-          <p>Radial Extent: <strong>{(day * 1.8).toFixed(1)} m</strong></p>
-          <p>Flow Velocity: <strong>{currentPhase === 'Production' ? ((day-18)*0.2).toFixed(2) : '0.00'} m/d</strong></p>
+        {/* Fluid front expansion rings - animated outward from wellbore center */}
+        <div className="res-anim-layer">
+          {/* Radial fluid-front ellipses that scale with day */}
+          {[0.6, 0.8, 1.0].map((scale, i) => (
+            <div key={i} className="res-ring" style={{
+              transform: `translate(-50%,-50%) scale(${scale * (1 + day / 40)})`,
+              opacity: currentPhase === 'Injection' ? 0.55 - i * 0.12 : currentPhase === 'Production' ? 0.3 - i * 0.07 : 0.15,
+              background: currentPhase === 'Injection'
+                ? `radial-gradient(ellipse, rgba(80,160,255,0.5) 0%, rgba(80,160,255,0.1) 60%, transparent 100%)`
+                : `radial-gradient(ellipse, rgba(255,120,30,0.4) 0%, rgba(255,80,0,0.1) 60%, transparent 100%)`,
+              animationDelay: `${i * 0.5}s`,
+            }} />
+          ))}
+          {/* Expanding pulse ring that repeats */}
+          {running && [
+            { delay: '0s' }, { delay: '1s' }, { delay: '2s' }
+          ].map((r, i) => (
+            <div key={i} className="res-pulse-ring" style={{ animationDelay: r.delay,
+              borderColor: currentPhase === 'Injection' ? 'rgba(80,160,255,0.7)' : 'rgba(255,120,30,0.7)'
+            }} />
+          ))}
+          {/* Wellbore glow dot */}
+          <div className="res-wellbore-dot" style={{
+            background: currentPhase === 'Injection' ? '#5ea2f3' : currentPhase === 'Production' ? '#ff6600' : '#ffcc00',
+            boxShadow: `0 0 18px 6px ${currentPhase === 'Injection' ? 'rgba(94,162,243,0.8)' : currentPhase === 'Production' ? 'rgba(255,102,0,0.8)' : 'rgba(255,204,0,0.8)'}`,
+          }} />
+          {/* Particle streams - fluid flowing outward during production */}
+          {running && currentPhase === 'Production' && [...Array(6)].map((_, i) => (
+            <div key={i} className="res-particle" style={{
+              animationDelay: `${i * 0.35}s`,
+              transform: `rotate(${i * 60}deg)`,
+            }} />
+          ))}
+          {/* Steam injection particles - flowing down during injection */}
+          {running && currentPhase === 'Injection' && [...Array(5)].map((_, i) => (
+            <div key={i} className="inject-stream" style={{ animationDelay: `${i * 0.3}s` }} />
+          ))}
         </div>
       </div>
     )}
 
     {activeTab === 'Temperature Map' && (
       <div className="sim-special-view temp-map-view">
-        <div className="res-grid dark"></div>
-        <div className="heat-zone" style={{ 
-          transform: `scale(${1 + (day <= 16 ? day / 3.5 : 16 / 3.5 + (day - 16) / 8)})`,
-          opacity: day <= 16 ? 0.9 : (day <= 18 ? 0.8 : Math.max(0.4, 0.8 - (day - 18) / 30)),
-          background: `radial-gradient(circle, ${day <= 16 ? '#ff3300' : '#ff9900'} 0%, ${day <= 16 ? 'rgba(255, 102, 0, 0.6)' : 'rgba(255, 153, 0, 0.4)'} 40%, transparent 70%)`
-        }}></div>
-        <div className="res-wellbore hot"></div>
-        <div className="sim-info-overlay">
-          <h3>Thermal Front Expansion</h3>
-          <p>Max Temperature: <strong>{day <= 16 ? Math.round(profile.temp + (310 - profile.temp) * (day/16)) : Math.round(310 - (day - 16) * 4)}°C</strong></p>
-          <p>Heated Volume: <strong>{Math.round(100 + Math.pow(day, 2.2))} m³</strong></p>
+        {/* Invisible hover-capture layers */}
+        <div className="temp-layers">
+          {[
+            { name: 'Surface Layer', temp: 50, height: '16%' },
+            { name: 'Upper Overburden', temp: 100, height: '16%' },
+            { name: 'Lower Overburden', temp: 150, height: '16%' },
+            { name: 'Cap Rock', temp: 200, height: '16%' },
+            { name: 'Jodhpur Sandstone', temp: 250, height: '16%' },
+            { name: 'Pay Zone', temp: day <= 16 ? Math.round(profile.temp + (310 - profile.temp) * (day/16)) : Math.round(310 - (day - 16) * 4), height: '20%' },
+          ].map(layer => (
+            <div key={layer.name} className="temp-layer transparent-hover" style={{ height: layer.height }}>
+              <div className="layer-info">
+                <span>{layer.name}</span>
+                <strong>{layer.temp}°C</strong>
+              </div>
+            </div>
+          ))}
         </div>
+        {/* Animated thermal front overlaid on image */}
+        {running && (
+          <div className="temp-anim-layer">
+            {/* Heat shimmer wave */}
+            <div className="heat-shimmer" />
+            {/* Expanding thermal front ellipses */}
+            {[1, 1.6, 2.2].map((scale, i) => (
+              <div key={i} className="thermal-ring" style={{
+                transform: `translate(-50%,-50%) scale(${scale * (1 + day / 50)})`,
+                opacity: 0.5 - i * 0.13,
+                animationDelay: `${i * 0.6}s`,
+                borderColor: day <= 16 ? 'rgba(255,60,0,0.7)' : 'rgba(255,160,0,0.6)',
+              }} />
+            ))}
+            {/* Rising heat sparks */}
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="heat-spark" style={{
+                left: `${44 + (i % 3 - 1) * 3}%`,
+                animationDelay: `${i * 0.5}s`,
+                background: day <= 16 ? '#ff3300' : '#ff9900',
+              }} />
+            ))}
+          </div>
+        )}
       </div>
     )}
 
@@ -258,16 +336,11 @@ function SimulationCanvas({ phase, running, onToggle, well, profile, day, setDay
       </div>
     )}
 
-    {/* RIGHT: Temperature legend */}
-    <div className="sim-legend">
-      <p className="legend-title">Temperature (°C)</p>
-      <div className="legend-scale">
-        <div className="legend-ticks">
-          <span>300</span><span>250</span><span>200</span><span>150</span><span>100</span><span>50</span>
-        </div>
-        <div className="gradient-bar" />
+    {/* RIGHT: Temperature legend (hidden on Temperature Map because it's baked into the image) */}
+    {activeTab !== 'Temperature Map' && (
+      <div className="sim-legend" style={{ display: 'none' }}>
       </div>
-    </div>
+    )}
 
     {/* BOTTOM: Interactive timeline footer */}
     <div className="sim-footer-v2">
