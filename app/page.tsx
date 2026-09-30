@@ -162,13 +162,6 @@ function SimulationCanvas({ phase, running, onToggle, well, profile, day, setDay
   const currentPhase = day <= 16 ? 'Injection' : day <= 18 ? 'Soak' : day <= 30 ? 'Production' : 'Cooling'
 
   return <div className={`simulation-canvas-v2 ${running ? 'running' : ''}`}>
-    {/* Background image - full fit */}
-    <div className="sim-img-wrap">
-      <img src="/well-render.jpg" alt="3D Well Cross-Section View" className="sim-bg" />
-      {/* Overlay gradient bottom for footer readability */}
-      <div className="sim-img-gradient" />
-    </div>
-
     {/* TOP: Tab bar */}
     <div className="sim-header">
       <div className="sim-tabs">
@@ -177,7 +170,14 @@ function SimulationCanvas({ phase, running, onToggle, well, profile, day, setDay
       <button className="icon-btn" title="Fullscreen"><Maximize2 size={16} /></button>
     </div>
 
-    {/* Absolute positioned labels matching reference image */}
+    {/* Background image - full fit (Always visible) */}
+    <div className="sim-img-wrap">
+      <img src="/well-render.jpg" alt="3D Well Cross-Section View" className="sim-bg" />
+      {/* Overlay gradient bottom for footer readability */}
+      <div className="sim-img-gradient" />
+    </div>
+
+    {/* Absolute positioned labels matching reference image (Always visible) */}
     <div className="sim-labels">
       <div className="label-item l-wellhead"><span className="label-text">Wellhead</span><span className="label-dash"></span><span className="label-dot"></span></div>
       <div className="label-item l-injection"><span className="label-text">Injection Line</span><span className="label-dash"></span><span className="label-dot"></span></div>
@@ -186,6 +186,78 @@ function SimulationCanvas({ phase, running, onToggle, well, profile, day, setDay
       <div className="label-item l-jodhpur"><span className="label-text">Jodhpur Sandstone</span><span className="label-dash"></span><span className="label-dot"></span></div>
       <div className="label-item l-payzone"><span className="label-text">Pay Zone</span><span className="label-dash"></span><span className="label-dot"></span></div>
     </div>
+
+    {activeTab === 'Reservoir View' && (
+      <div className="sim-special-view reservoir-view">
+        <div className="res-grid"></div>
+        <div className="res-wellbore"></div>
+        <div className="res-fluid-front" style={{ 
+          transform: `scale(${1 + day / 6})`, 
+          opacity: currentPhase === 'Injection' ? 0.7 : (currentPhase === 'Soak' ? 0.5 : 0.2),
+          background: currentPhase === 'Injection' ? 'radial-gradient(circle, rgba(94, 162, 243, 0.8) 0%, rgba(94, 162, 243, 0.2) 70%, transparent 100%)' : 'radial-gradient(circle, rgba(51, 72, 99, 0.6) 0%, rgba(51, 72, 99, 0) 70%, transparent 100%)'
+        }}></div>
+        <div className="res-oil-flow" style={{ 
+          opacity: currentPhase === 'Production' ? (day - 18) / 12 : 0,
+          transform: `scale(${1 + (day > 18 ? (30 - day) / 6 : 0)})`
+        }}></div>
+        <div className="sim-info-overlay">
+          <h3>Fluid Saturation & Flow</h3>
+          <p>Phase: <strong>{currentPhase}</strong></p>
+          <p>Radial Extent: <strong>{(day * 1.8).toFixed(1)} m</strong></p>
+          <p>Flow Velocity: <strong>{currentPhase === 'Production' ? ((day-18)*0.2).toFixed(2) : '0.00'} m/d</strong></p>
+        </div>
+      </div>
+    )}
+
+    {activeTab === 'Temperature Map' && (
+      <div className="sim-special-view temp-map-view">
+        <div className="res-grid dark"></div>
+        <div className="heat-zone" style={{ 
+          transform: `scale(${1 + (day <= 16 ? day / 3.5 : 16 / 3.5 + (day - 16) / 8)})`,
+          opacity: day <= 16 ? 0.9 : (day <= 18 ? 0.8 : Math.max(0.4, 0.8 - (day - 18) / 30)),
+          background: `radial-gradient(circle, ${day <= 16 ? '#ff3300' : '#ff9900'} 0%, ${day <= 16 ? 'rgba(255, 102, 0, 0.6)' : 'rgba(255, 153, 0, 0.4)'} 40%, transparent 70%)`
+        }}></div>
+        <div className="res-wellbore hot"></div>
+        <div className="sim-info-overlay">
+          <h3>Thermal Front Expansion</h3>
+          <p>Max Temperature: <strong>{day <= 16 ? Math.round(profile.temp + (310 - profile.temp) * (day/16)) : Math.round(310 - (day - 16) * 4)}°C</strong></p>
+          <p>Heated Volume: <strong>{Math.round(100 + Math.pow(day, 2.2))} m³</strong></p>
+        </div>
+      </div>
+    )}
+
+    {activeTab === 'Profiles' && (
+      <div className="sim-special-view profiles-view">
+        <div className="profile-container">
+          <div className="profile-column">
+            <h4>Temperature</h4>
+            <div className="profile-bar">
+              <div className="profile-fill temp-fill" style={{ 
+                height: `${currentPhase === 'Injection' ? 100 : currentPhase === 'Soak' ? 80 - (day-16)*5 : Math.max(40, 70 - (day-18)*2)}%`,
+                background: `linear-gradient(to bottom, #ff9900, ${day <= 16 ? '#ff3300' : '#ffcc00'})`,
+                opacity: day <= 16 ? 0.9 : 0.7
+              }}></div>
+            </div>
+            <span className="profile-val">{day <= 16 ? Math.round(profile.temp + (310 - profile.temp) * (day/16)) : Math.round(310 - (day - 16) * 4)}°C</span>
+          </div>
+          <div className="profile-column">
+            <h4>Pressure</h4>
+            <div className="profile-bar">
+              <div className="profile-fill press-fill" style={{ 
+                height: `${currentPhase === 'Injection' ? 80 + day*1.2 : currentPhase === 'Soak' ? 99 : Math.max(40, 99 - (day-18)*3)}%`,
+                background: `linear-gradient(to bottom, #3498db, #2980b9)`
+              }}></div>
+            </div>
+            <span className="profile-val">{currentPhase === 'Injection' ? Math.round(18 + day * 0.5) : currentPhase === 'Soak' ? 26 : Math.round(26 - (day-18)*0.5)} bar</span>
+          </div>
+        </div>
+        <div className="sim-info-overlay">
+          <h3>Vertical Well Profiles</h3>
+          <p>Cross-sectional temperature and pressure gradients along the wellbore depth.</p>
+          <p>Target Depth: <strong>{profile.depth}m</strong></p>
+        </div>
+      </div>
+    )}
 
     {/* RIGHT: Temperature legend */}
     <div className="sim-legend">
